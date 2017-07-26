@@ -1,2 +1,3 @@
-# sGLMM
-Implementation for sGLMM (Sparse graph-structured linear mixed model)
+# AdvancedLMM
+
+- Linear Mixed Model with graph-structured Response Variables
