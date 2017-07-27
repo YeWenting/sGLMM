@@ -1,12 +1,8 @@
-__author__ = "Xiang Liu"
 from numpy import random
 import numpy as np
 
 np.set_printoptions(precision=5, suppress=True)  # suppress scientific float notation
-import math
 
-# define GcFlasso 0
-# define GwFlasso 1
 class GFlasso:
     def __init__(self, X=None, y=None, corr_coff=None, beta=None, lambda_flasso=0., gamma_flasso=0., flasso_type=0,
                  edge_vertex_matrix=None, mau=0., alpha_matrix=None, L1=0.):

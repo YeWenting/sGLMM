@@ -1,5 +1,3 @@
-__author__ = 'Haohan Wang'
-
 # Main file for usage of sGLMM (Sparse graph-structured linear mixed model)
 # Cite information:
 # Ye, W. Liu, X. Wang, H. & Xing, EP.

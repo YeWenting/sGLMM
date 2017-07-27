@@ -1,8 +1,4 @@
-__author__ = 'Haohan Wang'
-
-import sys
 import numpy as np
-import pysnptools
 import operator
 import time
 
@@ -37,7 +33,6 @@ class FileReader():
 
         mx, xy = np.where(np.isnan(X)==1)
 
-        print "mx, xy"
         print mx, xy
 
         missing = {}

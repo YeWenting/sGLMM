@@ -1,5 +1,3 @@
-__author__ = 'Haohan Wang'
-
 import scipy.linalg as linalg
 import scipy
 import numpy as np

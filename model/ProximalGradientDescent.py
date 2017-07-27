@@ -1,8 +1,5 @@
 __author__ = "Xiang Liu"
 
-from utility.roc import roc
-import numpy as np
-from matplotlib import pyplot as plt
 
 class ProximalGradientDescent:
     def __init__(self, tolerance=0.000001, learningRate=0.001, prev_residue=999999999999.,

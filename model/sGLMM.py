@@ -1,5 +1,3 @@
-__author__ = 'Haohan Wang'
-
 import scipy.optimize as opt
 import time
 
