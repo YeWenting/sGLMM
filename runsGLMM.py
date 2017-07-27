@@ -69,7 +69,6 @@ def initialize():
     ## data options
     dataGroup.add_option("-t", dest='fileType', default='plink', help="choices of input file type")
     dataGroup.add_option("-n", dest='fileName', help="name of the input file")
-    dataGroup.add_option("-v", dest='fileValidated', help="list of the validated markers")
 
     ## model options
     modelGroup.add_option("--lambda", dest="lmbd", default=None,
@@ -87,9 +86,6 @@ def initialize():
     parser.add_option_group(modelGroup)
 
     (options, args) = parser.parse_args()
-
-    fileType = 0
-    IN = None
 
     if len(args) != 0:
         parser.print_help()
@@ -131,7 +127,6 @@ def run(opt, outFile):
 
     # Output the result to the file
     ind = np.where(beta_model_lmm != 0)[0]
-    # bs = beta_model_lmm[ind].tolist()
     xname = []
     for i in ind:
         xname.append(i)
