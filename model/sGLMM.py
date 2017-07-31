@@ -12,7 +12,7 @@ def normalize(x):
 
 class sGLMM:
     def __init__(self, numintervals=100, ldeltamin=-5, ldeltamax=5, discoverNum=None, scale=0, learningRate=1e-5,
-                 lam=1, reg_min=1e-7, reg_max=1e7, threshold=0.618, isQuiet=False):
+                 lam=1, reg_min=1e-7, reg_max=1e7, threshold=0.618, isQuiet=False, cv_flag=False):
         self.numintervals = numintervals
         self.ldeltamin = ldeltamin
         self.ldeltamax = ldeltamax
@@ -25,6 +25,42 @@ class sGLMM:
         self.reg_max = reg_max
         self.threshold = threshold
         self.isQuiet = isQuiet
+        self.cv_flag = cv_flag
+        self.beta = None
+
+    def cross_val_score(self, X, y, lam, cv=5):
+        scores = []
+        [n, p] = X.shape
+        b = n / cv
+        for i in range(cv):
+            if not self.isQuiet: print "\tRun", i, "..."
+            ind = np.arange(b) + b * i
+            Xtr = np.delete(X, ind, axis=0)
+            ytr = np.delete(y, ind, axis=0)
+            Xte = X[ind, :]
+            yte = y[ind]
+            self.beta = self.runLasso(X=Xtr, Y=ytr, lam_=lam)
+            ypr = self.predict(Xte)
+            s = np.mean(np.square(ypr - yte))
+            scores.append(s)
+        return scores
+
+    def crossValidation(self, X, y):
+        minError = np.inf
+        minLam = 0
+        for i in range(-8, 8):
+            lam = np.power(10., i)
+            # model.set_lambda(lam)
+            if not self.isQuiet: print "lambda for this iteration: ", lam
+            scores = self.cross_val_score(X, y, lam, cv=5)
+            score = np.mean(np.abs(scores))
+            if not self.isQuiet: print "score: ", score
+            if score < minError:
+                minError = score
+                minLam = lam
+        print "The best lambda is ", minLam
+        beta = self.runLasso(X=X, Y=y, lam_=minLam)
+        return beta
 
     def train(self, X, K, y):
         print 'Computing ...'
@@ -37,8 +73,6 @@ class sGLMM:
         if y.ndim == 1:
             y = scipy.reshape(y, (n_s, 1))
 
-        X0 = np.ones(len(y)).reshape(len(y), 1)
-
         S, U, ldelta0, monitor_nm = self.train_nullmodel(y, K, S=Kva, U=Kve)
 
         delta0 = scipy.exp(ldelta0)
@@ -48,24 +82,22 @@ class sGLMM:
         SUX = SUX * scipy.tile(Sdi_sqrt, (n_f, 1)).T
         SUy = scipy.dot(U.T, y)
         SUy = SUy * scipy.reshape(Sdi_sqrt, (n_s, 1))
-        SUX0 = scipy.dot(U.T, X0)
-        SUX0 = SUX0 * scipy.tile(Sdi_sqrt, (1, 1)).T
-        for i in range(0,y.shape[1]):
-            SUy[:,i]=normalize(SUy[:,i])
-        SUX=normalize(SUX)
-        print 'Confounding correction completed.'
+        for i in range(0, y.shape[1]):
+            SUy[:, i]=normalize(SUy[:, i])
+        SUX = normalize(SUX)
 
-        # open(str(self.reg_min) + '_state.txt', "w").close()
-        if self.discoverNum is not None:
-            beta = self.cv_train(X=SUX, Y=SUy, K=int(self.discoverNum)*y.shape[1])
+        if self.cv_flag:
+            self.crossValidation(SUX, SUy)
+        elif self.discoverNum is not None:
+            self.beta = self.cv_train(X=SUX, Y=SUy, K=int(self.discoverNum)*y.shape[1])
         else:
-            beta = self.runLasso(SUX, SUy)
+            self.beta = self.runLasso(SUX, SUy, lam_=self.lam)
 
         time_end = time.time()
         time_diff = time_end - time_start
 
         print 'Computation completed in %.2fs' % (time_diff)
-        return beta
+        return self.beta
 
     def cv_train(self, X, Y, K):
         regMin = self.reg_min
@@ -99,7 +131,7 @@ class sGLMM:
         return betaM
 
 
-    def runLasso(self, X, Y,lam_=1):
+    def runLasso(self, X, Y,lam_):
         pgd = ProximalGradientDescent(learningRate=self.learningRate * 2e4)
         model = GFlasso(lambda_flasso=lam_, gamma_flasso=0.7, mau=0.1)
 
@@ -145,6 +177,9 @@ class sGLMM:
             else:
                 p.append(1)
         return p
+
+    def predict(self, X):
+        return np.dot(X, self.beta)
 
     def train_nullmodel(self, y, K, S=None, U=None):
         self.ldeltamin += self.scale

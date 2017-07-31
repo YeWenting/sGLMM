@@ -37,8 +37,6 @@ class ProximalGradientDescent:
         y = []
         while (epoch < self.maxIteration and diff > self.tolerance):
             epoch = epoch + 1
-            if epoch % 100 == 0:
-                print '%d' % (epoch / 10) + '%...'
             theta_new = 2. / (epoch + 3.)
             grad = model.gradient()
             in_ = beta - 1. / model.getL() * grad

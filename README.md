@@ -21,11 +21,11 @@ sGLMM is a state-of-art model that could extract the genetic variation efficient
 ```
 python runsGLMM.py --snum=50 -n data/mice.plink
 ```
-this command will run the program and specify the the number of relevant SNPs the model selects is 50. 
+this command will run the program and specify the the number of relevant SNPs that the model selects to 50. 
 
 Options:
 
-    -h, --help            show this help message and exit
+    -h, --help          show this help message and exit
     -t FILETYPE         choices of input file type (only csv or plink)
     -n FILENAME         name of the input file
     --lambda=LMBD       The weight of the penalizer. If neither lambda or snum

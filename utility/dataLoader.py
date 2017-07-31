@@ -1,6 +1,7 @@
 import numpy as np
 import operator
 import time
+import scipy
 
 class FileReader():
     def __init__(self, fileName, imputation=True, fileType=None):
@@ -57,9 +58,15 @@ class FileReader():
         print 'Imputation takes %.2fs' % (time_end - time_start)
         return X
 
-    def simpleImputation(self, X):
+    def simpleImputation(self, X, Y):
         X[np.isnan(X)] = 0
-        return X
+        keep = []
+        for i in range(Y.shape[0]):
+            for j in range(Y.shape[1]):
+                if np.isnan(Y[i, j]): break
+            if (j + 1 == Y.shape[1]) and not (np.isnan(Y[i, j])): keep.append(i)
+        # keep = [1, 2, 3, 4]
+        return X, keep
 
 
     def readFiles(self):
@@ -74,27 +81,26 @@ class FileReader():
             X = snpdata.val
             Xname = snpdata.sid
 
-            # from pysnptools.snpreader import Pheno
-            # phenoreader = Pheno(self.fileName+".fam")
-            # phenodata = phenoreader.read()
-            # y = phenodata.val[:,-1]
             y = self.famReader(self.fileName+".fam")
 
-        if self.fileType == 'csv':
+        elif self.fileType == 'csv':
             X = np.loadtxt(self.fileName+'.geno.csv', delimiter=',')
             y = np.loadtxt(self.fileName+'.pheno.csv', delimiter=',')
             try:
                 Xname = np.loadtxt(self.fileName+'.marker.csv', delimiter=',')
             except:
                 Xname = ['geno ' + str(i+1) for i in range(X.shape[1])]
+
+        if y.ndim == 1:
+            y = scipy.reshape(y, (y.shape[0], 1))
+
         if self.imputationFlag:
             X = self.imputation(X)
             keep = True - np.isnan(y)
             return X[keep,:], y[keep], Xname
         else:
-            X = self.simpleImputation(X)
-            keep = [1, 2, 3, 4, 5]
-            return X[keep,:], y[keep], Xname[keep]
+            X, keep = self.simpleImputation(X, y)
+            return X[keep, :], y[keep], Xname[keep]
 
 if __name__ == '__main__':
     fr = FileReader(fileName='../data/snps.132k')
