@@ -2,7 +2,7 @@
 
 Implementation of sGLMM in this paper:
 
-    ''Ye, W. Liu, X. Wang, H. & Xing, EP. A Sparse Graph-structrued Lasso Mixed model for genetic association with confounding correction''
+    ''Ye, W. Liu, X. Wang, H. & Xing, EP. A Sparse Graph-Structrued Lasso Mixed Model for Genetic Association with Confounding Correction''
 
 ## Introduction
 
