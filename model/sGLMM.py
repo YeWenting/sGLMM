@@ -82,6 +82,7 @@ class sGLMM:
         SUX = SUX * scipy.tile(Sdi_sqrt, (n_f, 1)).T
         SUy = scipy.dot(U.T, y)
         SUy = SUy * scipy.reshape(Sdi_sqrt, (n_s, 1))
+        # the normalize part can be commented
         for i in range(0, y.shape[1]):
             SUy[:, i]=normalize(SUy[:, i])
         SUX = normalize(SUX)
