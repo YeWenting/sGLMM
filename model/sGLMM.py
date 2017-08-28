@@ -88,7 +88,7 @@ class sGLMM:
         SUX = normalize(SUX)
 
         if self.cv_flag:
-            self.crossValidation(SUX, SUy)
+            self.beta=self.crossValidation(SUX, SUy)
         elif self.discoverNum is not None:
             self.beta = self.cv_train(X=SUX, Y=SUy, K=int(self.discoverNum)*y.shape[1])
         else:
